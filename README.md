@@ -1,4 +1,4 @@
-# Jméno Příjmení
+# Vítězslav Kříž
 ---
 ## Zvolené rozšíření
 - Popisek
