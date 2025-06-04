@@ -1,73 +1,549 @@
 <!DOCTYPE html>
 <html lang="cs">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo List</title>
+    <meta name="description" content="Rezervační systém sportovišť pro Sport Česká Lípa">
+    <title>Sport Česká Lípa - Rezervační systém sportovišť</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/assets/favicon.png" type="image/png">
 </head>
-
 <body>
-    <h1>Todo List</h1>
-    <section>
-        <h2>Přidat nový úkol</h2>
-        <form id="todo-form">
-            <div> <label for="name">Název úkolu:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div> <label for="description">Popis:</label>
-                <textarea id="description" name="description"></textarea>
-            </div>
-            <div> <button type="submit">Přidat úkol</button>
-            </div>
-        </form>
-    </section>
-    <section>
-        <h2>Seznam úkolů</h2>
-        <ul id="todo-list"> <!-- Zde se budou zobrazovat úkoly -->
-        </ul>
-    </section>
-    <script>
-        document.addEventListener('DOMContentLoaded', fetchTodos);
+    <h1><i class="fas fa-running"></i> Sport Česká Lípa</h1>
+    
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-button active" data-tab="locations-tab">
+            <i class="fas fa-map-marker-alt"></i> Sportoviště
+        </button>
+        <button class="tab-button" data-tab="reservations-tab">
+            <i class="fas fa-calendar-alt"></i> Rezervace
+        </button>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <!-- Sport Locations Tab -->
+    <div class="tab-content active" id="locations-tab">
+        <div class="section">
+            <h2><i class="fas fa-map-marker-alt"></i> Správa sportovišť</h2>
+            <form id="location-form">
+                <input type="hidden" id="location-id">
+                <div>
+                    <label for="location-name">Název:</label>
+                    <input type="text" id="location-name" required placeholder="Zadejte název sportoviště">
+                </div>
+                <div>
+                    <label for="location-address">Adresa:</label>
+                    <input type="text" id="location-address" required placeholder="Zadejte adresu">
+                </div>
+                <div>
+                    <label for="sport-select">Sport:</label>
+                    <select id="sport-select" required></select>
+                </div>
+                <div>
+                    <button type="submit" id="location-submit"><i class="fas fa-plus"></i> Přidat sportoviště</button>
+                    <button type="button" id="location-cancel" class="cancel-btn" style="display:none;"><i class="fas fa-times"></i> Zrušit</button>
+                </div>
+            </form>
+            
+            <h3><i class="fas fa-list"></i> Seznam sportovišť</h3>
+            <div id="locations-loader" class="loader" style="display: none;"></div>
+            <table id="locations-table">
+                <thead>
+                    <tr>
+                        <th>Název</th>
+                        <th>Adresa</th>
+                        <th>Sport</th>
+                        <th>Akce</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Reservations Tab -->
+    <div class="tab-content" id="reservations-tab">
+        <div class="section">
+            <h2><i class="fas fa-calendar-alt"></i> Správa rezervací</h2>
+            <form id="reservation-form">
+                <input type="hidden" id="reservation-id">
+                <div>
+                    <label for="firstname">Jméno:</label>
+                    <input type="text" id="firstname" required placeholder="Zadejte jméno">
+                </div>
+                <div>
+                    <label for="lastname">Příjmení:</label>
+                    <input type="text" id="lastname" required placeholder="Zadejte příjmení">
+                </div>
+                <div>
+                    <label for="date">Datum:</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div>
+                    <label for="time-slot">Časový slot:</label>
+                    <select id="time-slot" required>
+                        <option value="8:00-9:00">8:00 - 9:00</option>
+                        <option value="9:00-10:00">9:00 - 10:00</option>
+                        <option value="10:00-11:00">10:00 - 11:00</option>
+                        <option value="11:00-12:00">11:00 - 12:00</option>
+                        <option value="13:00-14:00">13:00 - 14:00</option>
+                        <option value="14:00-15:00">14:00 - 15:00</option>
+                        <option value="15:00-16:00">15:00 - 16:00</option>
+                        <option value="16:00-17:00">16:00 - 17:00</option>
+                        <option value="17:00-18:00">17:00 - 18:00</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="location-select">Sportoviště:</label>
+                    <select id="location-select" required></select>
+                </div>
+                <div>
+                    <button type="submit" id="reservation-submit"><i class="fas fa-plus"></i> Vytvořit rezervaci</button>
+                    <button type="button" id="reservation-cancel" class="cancel-btn" style="display:none;"><i class="fas fa-times"></i> Zrušit</button>
+                </div>
+            </form>
+            
+            <h3><i class="fas fa-list"></i> Seznam rezervací</h3>
+            <div id="reservations-loader" class="loader" style="display: none;"></div>
+            <table id="reservations-table">
+                <thead>
+                    <tr>
+                        <th>Jméno</th>
+                        <th>Příjmení</th>
+                        <th>Datum</th>
+                        <th>Čas</th>
+                        <th>Sportoviště</th>
+                        <th>Akce</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Sport Česká Lípa - Rezervační systém sportovišť | Vytvořil Marek Holuška</p>
+    </footer>
 
-        document.getElementById('todo-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const description = document.getElementById('description').value;
-            try {
-                const response = await fetch('/api/items', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, description })
-                });
-                if (response.ok) {
-                    document.getElementById('todo-form').reset();
-                    fetchTodos();
-                } else {
-                    alert('Chyba při přidávání úkolu');
-                }
-            } catch (error) {
-                console.error('Chyba:', error);
-            }
+    <script src="/assets/validation.js"></script>
+    <script>
+        // Global variables to store data
+        let sports = [];
+        let locations = [];
+        let reservations = [];
+        let editingLocationId = null;
+        let editingReservationId = null;
+
+        // DOM Content Loaded - Initialize the application
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set up tab navigation
+            setupTabs();
+            
+            // Fetch data
+            await fetchSports();
+            await fetchLocations();
+            await fetchReservations();
+            
+            // Set up event listeners
+            document.getElementById('location-form').addEventListener('submit', handleLocationSubmit);
+            document.getElementById('reservation-form').addEventListener('submit', handleReservationSubmit);
+            document.getElementById('location-cancel').addEventListener('click', cancelLocationEdit);
+            document.getElementById('reservation-cancel').addEventListener('click', cancelReservationEdit);
+            
+            // Set min date for date input to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').min = today;
         });
 
-        async function fetchTodos() {
+        // Setup tab navigation
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and content
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = document.createElement('span');
+            icon.className = 'toast-icon';
+            icon.innerHTML = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+            
+            const text = document.createElement('span');
+            text.textContent = message;
+            
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            toastContainer.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Show loading spinner
+        function showLoader(id, show) {
+            document.getElementById(id).style.display = show ? 'block' : 'none';
+        }
+
+        // Fetch all sports from the API
+        async function fetchSports() {
             try {
-                const response = await fetch('/api/items');
-                const todos = await response.json();
-                const todoList = document.getElementById('todo-list');
-                todoList.innerHTML = '';
-                todos.forEach(todo => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${todo.name}</strong>: ${todo.description || ''}`;
-                    todoList.appendChild(li);
+                const response = await fetch('/api/sports');
+                sports = await response.json();
+                
+                // Populate sport select dropdown
+                const sportSelect = document.getElementById('sport-select');
+                sportSelect.innerHTML = '<option value="">Vyberte sport</option>';
+                
+                sports.forEach(sport => {
+                    const option = document.createElement('option');
+                    option.value = sport.id;
+                    option.textContent = sport.name;
+                    sportSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error('Chyba při načítání úkolů:', error);
+                console.error('Error fetching sports:', error);
+                showToast('Nepodařilo se načíst sporty', 'error');
+            }
+        }
+
+        // Fetch all locations from the API
+        async function fetchLocations() {
+            showLoader('locations-loader', true);
+            try {
+                const response = await fetch('/api/locations');
+                locations = await response.json();
+                
+                // Populate locations table
+                const locationsTable = document.querySelector('#locations-table tbody');
+                locationsTable.innerHTML = '';
+                
+                if (locations.length === 0) {
+                    locationsTable.innerHTML = '<tr><td colspan="4" class="no-data">Žádná sportoviště nebyla nalezena</td></tr>';
+                } else {
+                    locations.forEach(location => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${location.name}</td>
+                            <td>${location.location}</td>
+                            <td>${location.sport_name || 'Neurčeno'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editLocation(${location.id})"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteLocation(${location.id})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        locationsTable.appendChild(row);
+                    });
+                }
+                
+                // Populate location select dropdown for reservations
+                const locationSelect = document.getElementById('location-select');
+                locationSelect.innerHTML = '<option value="">Vyberte sportoviště</option>';
+                
+                locations.forEach(location => {
+                    const option = document.createElement('option');
+                    option.value = location.id;
+                    option.textContent = `${location.name} (${location.sport_name || 'Neurčeno'})`;
+                    locationSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+                showToast('Nepodařilo se načíst sportoviště', 'error');
+            } finally {
+                showLoader('locations-loader', false);
+            }
+        }
+
+        // Fetch all reservations from the API
+        async function fetchReservations() {
+            showLoader('reservations-loader', true);
+            try {
+                const response = await fetch('/api/reservations');
+                reservations = await response.json();
+                
+                // Populate reservations table
+                const reservationsTable = document.querySelector('#reservations-table tbody');
+                reservationsTable.innerHTML = '';
+                
+                if (reservations.length === 0) {
+                    reservationsTable.innerHTML = '<tr><td colspan="6" class="no-data">Žádné rezervace nebyly nalezeny</td></tr>';
+                } else {
+                    reservations.forEach(reservation => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${reservation.firstname}</td>
+                            <td>${reservation.lastname}</td>
+                            <td>${formatDate(reservation.date)}</td>
+                            <td>${reservation.time_slot}</td>
+                            <td>${reservation.location_name || 'Neurčeno'}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editReservation(${reservation.id})"><i class="fas fa-edit"></i></button>
+                                <button class="delete-btn" onclick="deleteReservation(${reservation.id})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        reservationsTable.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching reservations:', error);
+                showToast('Nepodařilo se načíst rezervace', 'error');
+            } finally {
+                showLoader('reservations-loader', false);
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('cs-CZ');
+        }
+
+        // Handle location form submission
+        async function handleLocationSubmit(event) {
+            event.preventDefault();
+            
+            if (!validateLocationForm()) return;
+            
+            const name = document.getElementById('location-name').value.trim();
+            const location = document.getElementById('location-address').value.trim();
+            const sportId = document.getElementById('sport-select').value;
+            
+            const locationData = {
+                name,
+                location,
+                sport_id: sportId
+            };
+            
+            try {
+                let response;
+                
+                if (editingLocationId) {
+                    // Update existing location
+                    response = await fetch(`/api/locations/${editingLocationId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(locationData)
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Sportoviště bylo úspěšně aktualizováno');
+                        cancelLocationEdit();
+                    }
+                } else {
+                    // Create new location
+                    response = await fetch('/api/locations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(locationData)
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Sportoviště bylo úspěšně vytvořeno');
+                        document.getElementById('location-form').reset();
+                    }
+                }
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Něco se pokazilo');
+                }
+                
+                await fetchLocations();
+            } catch (error) {
+                console.error('Error saving location:', error);
+                showToast(`Chyba: ${error.message}`, 'error');
+            }
+        }
+
+        // Handle reservation form submission
+        async function handleReservationSubmit(event) {
+            event.preventDefault();
+            
+            if (!validateReservationForm()) return;
+            
+            const firstname = document.getElementById('firstname').value.trim();
+            const lastname = document.getElementById('lastname').value.trim();
+            const date = document.getElementById('date').value;
+            const timeSlot = document.getElementById('time-slot').value;
+            const locationId = document.getElementById('location-select').value;
+            
+            // Check for conflicting reservations
+            const hasConflict = await checkReservationConflict(
+                date, 
+                timeSlot, 
+                locationId, 
+                editingReservationId
+            );
+            
+            if (hasConflict) return;
+            
+            const reservationData = {
+                firstname,
+                lastname,
+                date,
+                time_slot: timeSlot,
+                location_id: locationId
+            };
+            
+            try {
+                let response;
+                
+                if (editingReservationId) {
+                    // Update existing reservation
+                    response = await fetch(`/api/reservations/${editingReservationId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(reservationData)
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Rezervace byla úspěšně aktualizována');
+                        cancelReservationEdit();
+                    }
+                } else {
+                    // Create new reservation
+                    response = await fetch('/api/reservations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(reservationData)
+                    });
+                    
+                    if (response.ok) {
+                        showToast('Rezervace byla úspěšně vytvořena');
+                        document.getElementById('reservation-form').reset();
+                    }
+                }
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Něco se pokazilo');
+                }
+                
+                await fetchReservations();
+            } catch (error) {
+                console.error('Error saving reservation:', error);
+                showToast(`Chyba: ${error.message}`, 'error');
+            }
+        }
+
+        // Edit location
+        function editLocation(location) {
+            editingLocationId = location.id;
+            document.getElementById('location-id').value = location.id;
+            document.getElementById('location-name').value = location.name;
+            document.getElementById('location-address').value = location.location;
+            document.getElementById('sport-select').value = location.sport_id;
+            
+            document.getElementById('location-submit').innerHTML = '<i class="fas fa-save"></i> Aktualizovat sportoviště';
+            document.getElementById('location-cancel').style.display = 'block';
+        }
+
+        // Cancel location edit
+        function cancelLocationEdit() {
+            editingLocationId = null;
+            document.getElementById('location-form').reset();
+            document.getElementById('location-submit').innerHTML = '<i class="fas fa-plus"></i> Přidat sportoviště';
+            document.getElementById('location-cancel').style.display = 'none';
+        }
+
+        // Delete location
+        async function deleteLocation(id) {
+            if (!confirm('Opravdu chcete smazat toto sportoviště? Budou smazány i všechny související rezervace.')) return;
+            
+            try {
+                const response = await fetch(`/api/locations/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('Sportoviště bylo úspěšně smazáno');
+                    await fetchLocations();
+                    await fetchReservations(); // Refresh reservations as they might be affected
+                } else {
+                    const error = await response.json();
+                    showToast(`Chyba: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting location:', error);
+                showToast('Nepodařilo se smazat sportoviště', 'error');
+            }
+        }
+
+        // Edit reservation
+        function editReservation(reservation) {
+            editingReservationId = reservation.id;
+            document.getElementById('reservation-id').value = reservation.id;
+            document.getElementById('firstname').value = reservation.firstname;
+            document.getElementById('lastname').value = reservation.lastname;
+            document.getElementById('date').value = reservation.date;
+            document.getElementById('time-slot').value = reservation.time_slot;
+            document.getElementById('location-select').value = reservation.location_id;
+            
+            document.getElementById('reservation-submit').innerHTML = '<i class="fas fa-save"></i> Aktualizovat rezervaci';
+            document.getElementById('reservation-cancel').style.display = 'block';
+        }
+
+        // Cancel reservation edit
+        function cancelReservationEdit() {
+            editingReservationId = null;
+            document.getElementById('reservation-form').reset();
+            document.getElementById('reservation-submit').innerHTML = '<i class="fas fa-plus"></i> Vytvořit rezervaci';
+            document.getElementById('reservation-cancel').style.display = 'none';
+        }
+
+        // Delete reservation
+        async function deleteReservation(id) {
+            if (!confirm('Opravdu chcete smazat tuto rezervaci?')) return;
+            
+            try {
+                const response = await fetch(`/api/reservations/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showToast('Rezervace byla úspěšně smazána');
+                    await fetchReservations();
+                } else {
+                    const error = await response.json();
+                    showToast(`Chyba: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting reservation:', error);
+                showToast('Nepodařilo se smazat rezervaci', 'error');
             }
         }
     </script>
-
 </body>
-
 </html>
