@@ -3,3 +3,4 @@ database/database.sqlite
 .DS_Store
 .vscode/
 package-lock.json
+cache/
