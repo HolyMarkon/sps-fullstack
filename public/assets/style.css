@@ -1,7 +1,8 @@
 :root {
-  --primary-color: #3498db;
-  --secondary-color: #2ecc71;
-  --danger-color: #e74c3c;
+  --primary-color: #00809D; /* Modrá jako primární barva */
+  --secondary-color: #2ecc71; /* Zelená pro vytváření */
+  --danger-color: #e74c3c; /* Červená pro mazání */
+  --warning-color: #f1c40f; /* Žlutá pro úpravy */
   --text-color: #333;
   --light-gray: #f5f5f5;
   --border-color: #ddd;
@@ -181,13 +182,13 @@ tr:hover {
 }
 
 .edit-btn {
-  background-color: var(--primary-color);
+  background-color: var(--warning-color);
   color: white;
   flex: 1;
 }
 
 .edit-btn:hover {
-  background-color: #2980b9;
+  background-color: #d4ac0d; /* Tmavší žlutá při najetí */
 }
 
 .delete-btn {
@@ -197,19 +198,19 @@ tr:hover {
 }
 
 .delete-btn:hover {
-  background-color: #c0392b;
+  background-color: #c0392b; /* Tmavší červená při najetí */
 }
 
 .cancel-btn {
-  background-color: #95a5a6;
+  background-color: var(--danger-color);
   color: white;
-  border: 2px solid #7f8c8d;
+  border: 2px solid #c0392b;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   margin-top: 10px;
 }
 
 .cancel-btn:hover {
-  background-color: #7f8c8d;
+  background-color: #c0392b;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
