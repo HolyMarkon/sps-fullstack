@@ -43,7 +43,7 @@
                     <label for="sport-select">Sport:</label>
                     <select id="sport-select" required></select>
                 </div>
-                <div>
+                <div class="form-buttons">
                     <button type="submit" id="location-submit"><i class="fas fa-plus"></i> Přidat sportoviště</button>
                     <button type="button" id="location-cancel" class="cancel-btn" style="display:none;"><i class="fas fa-times"></i> Zrušit</button>
                 </div>
@@ -459,15 +459,24 @@
         }
 
         // Edit location
-        function editLocation(location) {
-            editingLocationId = location.id;
-            document.getElementById('location-id').value = location.id;
-            document.getElementById('location-name').value = location.name;
-            document.getElementById('location-address').value = location.location;
-            document.getElementById('sport-select').value = location.sport_id;
-            
-            document.getElementById('location-submit').innerHTML = '<i class="fas fa-save"></i> Aktualizovat sportoviště';
-            document.getElementById('location-cancel').style.display = 'block';
+        async function editLocation(id) {
+            try {
+                const response = await fetch(`/api/locations/${id}`);
+                if (!response.ok) throw new Error('Nepodařilo se načíst data sportoviště');
+                
+                const location = await response.json();
+                editingLocationId = location.id;
+                document.getElementById('location-id').value = location.id;
+                document.getElementById('location-name').value = location.name;
+                document.getElementById('location-address').value = location.location;
+                document.getElementById('sport-select').value = location.sport_id;
+                
+                document.getElementById('location-submit').innerHTML = '<i class="fas fa-save"></i> Aktualizovat sportoviště';
+                document.getElementById('location-cancel').style.display = 'block';
+            } catch (error) {
+                console.error('Error editing location:', error);
+                showToast('Nepodařilo se načíst data sportoviště', 'error');
+            }
         }
 
         // Cancel location edit
